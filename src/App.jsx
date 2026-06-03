@@ -1,18 +1,19 @@
-<h1>🔥 FAANG Interview Simulator</h1>
-<p style={{ color: "#94a3b8" }}>
-  AI-powered interview scoring system
-</p>
-{feedback && (
+return (
   <div style={{
-    marginTop: "20px",
-    background: "#1e293b",
-    padding: "15px",
-    borderRadius: "10px",
-    width: "600px"
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "white",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "15px"
   }}>
-    <h3>AI Evaluation</h3>
-    <pre style={{ whiteSpace: "pre-wrap" }}>
-      {feedback}
-    </pre>
-  </div>
-)}
+
+    {/* 👇 PUT IT HERE */}
+    <h1>🔥 FAANG Interview Simulator</h1>
+    <p style={{ color: "#94a3b8" }}>
+      AI-powered interview scoring system
+    </p>
+
+    {/* rest of your UI */}
