@@ -3,34 +3,39 @@ export default async function handler(req, res) {
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({
-        error: "Missing OPENAI_API_KEY"
-      });
+      return res.status(500).json({ error: "Missing API key" });
     }
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        input: "Give ONE simple machine learning interview question"
-      })
+        input: "Give ONE simple machine learning interview question",
+      }),
     });
 
     const data = await response.json();
 
+    // ✅ SAFE extraction (FIXED)
+    const text =
+      data.output_text ||
+      data.output?.[0]?.content?.[0]?.text ||
+      data.error?.message ||
+      "No response from AI";
+
     return res.status(200).json({
-      text: data.output?.[0]?.content?.[0]?.text || "No response"
+      text,
     });
 
   } catch (err) {
-    console.error("ERROR:", err);
+    console.error(err);
 
     return res.status(500).json({
-      error: err.message
+      error: err.message,
     });
   }
 }
