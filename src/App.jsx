@@ -1,7 +1,17 @@
-export default function App() {
+function App() {
   return (
-    <div style={{ padding: 40 }}>
-      <h1>KinMax AI is Working 🚀</h1>
+    <div style={{
+      minHeight: "100vh",
+      background: "#111",
+      color: "white",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      fontSize: "2rem"
+    }}>
+      KinMax AI is Working 🚀
     </div>
   );
 }
+
+export default App;
