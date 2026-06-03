@@ -1,41 +1,29 @@
 export default async function handler(req, res) {
-  try {
-    const apiKey = process.env.OPENAI_API_KEY;
+  const { mode } = req.body;
 
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing API key" });
-    }
+  const prompt = `
+You are a FAANG interviewer.
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        input: "Give ONE simple machine learning interview question",
-      }),
-    });
+Company: ${mode || "FAANG"}
 
-    const data = await response.json();
+Ask ONE challenging interview question for a software/data science role.
+`;
 
-    // ✅ SAFE extraction (FIXED)
-    const text =
-      data.output_text ||
-      data.output?.[0]?.content?.[0]?.text ||
-      data.error?.message ||
-      "No response from AI";
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      input: prompt,
+    }),
+  });
 
-    return res.status(200).json({
-      text,
-    });
+  const data = await response.json();
 
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      error: err.message,
-    });
-  }
+  res.status(200).json({
+    text: data.output_text,
+  });
 }
