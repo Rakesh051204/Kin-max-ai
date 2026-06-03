@@ -4,120 +4,116 @@ export default function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
-  const [loadingQ, setLoadingQ] = useState(false);
-  const [loadingF, setLoadingF] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("FAANG");
+  const [timer, setTimer] = useState(120);
 
-  // ✅ AI Question
+  // ⏱️ Timer
+  const startTimer = () => {
+    let time = 120;
+    const interval = setInterval(() => {
+      time--;
+      setTimer(time);
+
+      if (time <= 0) {
+        clearInterval(interval);
+        getFeedback();
+      }
+    }, 1000);
+  };
+
+  // 🎯 Generate Question (FAANG LEVEL)
   const generateQuestion = async () => {
-    setLoadingQ(true);
+    setLoading(true);
     setFeedback("");
+    setAnswer("");
+    setTimer(120);
+    startTimer();
 
     try {
       const res = await fetch("/api/question", {
-        method: "POST"
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
       });
 
       const data = await res.json();
       setQuestion(data.text);
-      setAnswer("");
     } catch (err) {
       setQuestion("Error generating question");
     }
 
-    setLoadingQ(false);
+    setLoading(false);
   };
 
-  // ✅ AI Feedback
+  // 🧠 Get AI Feedback
   const getFeedback = async () => {
     if (!answer) {
-      setFeedback("⚠️ Please write an answer first.");
+      setFeedback("Please write an answer first.");
       return;
     }
 
-    setLoadingF(true);
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, answer }),
+    });
 
-    try {
-      const res = await fetch("/api/feedback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          question,
-          answer
-        })
-      });
-
-      const data = await res.json();
-      setFeedback(data.text);
-    } catch (err) {
-      setFeedback("Error getting AI feedback");
-    }
-
-    setLoadingF(false);
+    const data = await res.json();
+    setFeedback(data.text);
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#0f172a",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "20px",
-        padding: "20px"
-      }}
-    >
-      <h1>🔥 AI Interview Coach</h1>
+    <div style={{
+      minHeight: "100vh",
+      background: "#0f172a",
+      color: "white",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "15px"
+    }}>
 
-      {/* Generate Question */}
-      <button
-        onClick={generateQuestion}
-        disabled={loadingQ}
-        style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer"
-        }}
+      <h1>🔥 FAANG Interview Simulator</h1>
+
+      {/* MODE SELECTOR */}
+      <select
+        onChange={(e) => setMode(e.target.value)}
+        style={{ padding: "10px" }}
       >
-        {loadingQ ? "Generating..." : "Generate Question"}
+        <option>FAANG</option>
+        <option>Google</option>
+        <option>Amazon</option>
+        <option>Microsoft</option>
+        <option>Data Science</option>
+      </select>
+
+      <button onClick={generateQuestion} disabled={loading}>
+        {loading ? "Generating..." : "Start Interview"}
       </button>
 
-      {/* Question Box */}
+      {/* TIMER */}
+      <h3>⏱️ Time Left: {timer}s</h3>
+
+      {/* QUESTION */}
       {question && (
-        <div style={{ maxWidth: "600px", textAlign: "center" }}>
+        <div style={{ maxWidth: "600px" }}>
           <h2>Question:</h2>
           <p>{question}</p>
 
-          {/* Answer Box */}
           <textarea
-            placeholder="Write your answer..."
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            style={{
-              width: "100%",
-              height: "120px",
-              marginTop: "10px"
-            }}
+            placeholder="Type your answer..."
+            style={{ width: "100%", height: "120px" }}
           />
 
-          {/* Feedback Button */}
-          <button
-            onClick={getFeedback}
-            disabled={loadingF}
-            style={{
-              marginTop: "10px",
-              padding: "10px 20px",
-              cursor: "pointer"
-            }}
-          >
-            {loadingF ? "Analyzing..." : "Get Feedback"}
+          <button onClick={getFeedback}>
+            Submit Answer
           </button>
 
-          {/* Feedback Output */}
+          {/* FEEDBACK */}
           {feedback && (
             <div style={{ marginTop: "20px" }}>
               <h3>AI Feedback:</h3>
