@@ -1,5 +1,3 @@
-import OpenAI from "openai";
-
 export default async function handler(req, res) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -10,21 +8,26 @@ export default async function handler(req, res) {
       });
     }
 
-    const client = new OpenAI({
-      apiKey
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        input: "Give ONE simple machine learning interview question"
+      })
     });
 
-    const response = await client.responses.create({
-      model: "gpt-4o-mini",
-      input: "Give ONE simple data science or machine learning interview question"
-    });
+    const data = await response.json();
 
     return res.status(200).json({
-      text: response.output_text
+      text: data.output?.[0]?.content?.[0]?.text || "No response"
     });
 
   } catch (err) {
-    console.error("QUESTION API ERROR:", err);
+    console.error("ERROR:", err);
 
     return res.status(500).json({
       error: err.message
