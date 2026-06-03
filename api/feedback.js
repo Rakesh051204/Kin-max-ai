@@ -1,44 +1,44 @@
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { question, answer } = req.body;
-
-  if (!question || !answer) {
-    return res.status(400).json({ error: "Missing question or answer" });
-  }
-
   try {
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: `
-You are an AI interview evaluator.
+    const { question, answer } = req.body;
+
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        input: `
+You are a FAANG interview evaluator.
 
 Question: ${question}
-Candidate Answer: ${answer}
+Answer: ${answer}
 
-Give:
-1. Score out of 10
-2. Short feedback
-3. Improvement tips
-`
+Return STRICT JSON in this format:
+{
+  "score": number out of 10,
+  "strengths": "short points",
+  "weaknesses": "short points",
+  "improvements": "short advice"
+}
+        `,
+      }),
     });
 
-    res.status(200).json({
-      text: response.output_text
-    });
+    const data = await response.json();
+
+    const text =
+      data.output_text ||
+      data.output?.[0]?.content?.[0]?.text ||
+      "No response";
+
+    res.status(200).json({ text });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      error: "AI request failed"
-    });
+    res.status(500).json({ error: err.message });
   }
 }
