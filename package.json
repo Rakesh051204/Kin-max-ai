@@ -1,8 +1,10 @@
 {
-  "name": "...",
-  "version": "...",
+  "name": "kin-max-ai",
+  "version": "1.0.0",
   "scripts": {
-    ...
+    "dev": "...",
+    "build": "...",
+    "preview": "..."
   },
   "dependencies": {
     ...
