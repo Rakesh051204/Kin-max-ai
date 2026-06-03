@@ -56,3 +56,67 @@ export default function App() {
     </div>
   );
 }
+export default function App() {
+  const startMic = () => {
+  const recognition =
+    new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+  recognition.lang = "en-US";
+
+  recognition.onresult = (event) => {
+    setInput(event.results[0][0].transcript);
+  };
+
+  recognition.start();
+};
+
+return (
+  <div
+    style={{
+      minHeight: "100vh",
+      background: "#0f172a",
+      color: "white",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "15px",
+      padding: "20px"
+    }}
+  >
+
+    <h1>🔥 AI Interview Bot</h1>
+
+    {/* INPUT BOX */}
+    <input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      placeholder="Type or speak your answer..."
+      style={{ padding: "10px", width: "300px" }}
+    />
+
+    {/* BUTTONS */}
+    <div style={{ display: "flex", gap: "10px" }}>
+
+      <button onClick={sendMessage}>
+        Send
+      </button>
+
+      {/* 🎤 MIC BUTTON (ADD HERE) */}
+      <button onClick={startMic}>
+        🎤 Speak
+      </button>
+
+    </div>
+
+    {/* CHAT OUTPUT */}
+    <div>
+      {messages.map((m, i) => (
+        <p key={i}>
+          <b>{m.role}:</b> {m.text}
+        </p>
+      ))}
+    </div>
+
+  </div>
+);
