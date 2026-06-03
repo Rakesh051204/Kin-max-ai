@@ -1,19 +1,22 @@
-return (
-  <div style={{
-    minHeight: "100vh",
-    background: "#0f172a",
-    color: "white",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "15px"
-  }}>
+const generateQuestion = async () => {
+  setQuestion("");
+  setAnswer("");
+  setFeedback("");
 
-    {/* 👇 PUT IT HERE */}
-    <h1>🔥 FAANG Interview Simulator</h1>
-    <p style={{ color: "#94a3b8" }}>
-      AI-powered interview scoring system
-    </p>
+  try {
+    const res = await fetch("/api/question", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
 
-    {/* rest of your UI */}
+    const data = await res.json();
+
+    console.log("API RESPONSE:", data);
+
+    setQuestion(data.text || "No question received");
+  } catch (err) {
+    setQuestion("Error generating question");
+  }
+};
